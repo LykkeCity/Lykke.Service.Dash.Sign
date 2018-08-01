@@ -5,6 +5,8 @@ using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
+using Lykke.Common.Log;
+using Lykke.Logs;
 using Lykke.Service.Dash.Sign.Core.Services;
 using Lykke.Service.Dash.Sign.Core.Settings;
 using Lykke.Service.Dash.Sign.Modules;
@@ -20,10 +22,10 @@ namespace Lykke.Service.Dash.Sign
 {
     public class Startup
     {
-        public IHostingEnvironment Environment { get; }
-        public IContainer ApplicationContainer { get; private set; }
-        public IConfigurationRoot Configuration { get; }
-        public ILog Log { get; private set; }
+        private IHostingEnvironment Environment { get; }
+        private IContainer ApplicationContainer { get; set; }
+        private IConfigurationRoot Configuration { get; }
+        private ILog Log { get; set; }
 
         public Startup(IHostingEnvironment env)
         {
@@ -56,9 +58,8 @@ namespace Lykke.Service.Dash.Sign
 
                 var builder = new ContainerBuilder();
                 var appSettings = Configuration.LoadSettings<AppSettings>();
-                Log = new EmptyLog();
-                builder
-                    .RegisterInstance<ILog>(Log)
+                Log = EmptyLogFactory.Instance.CreateLog(nameof(Startup));
+                builder.RegisterInstance<ILog>(Log)
                     .SingleInstance();
 
                 builder.RegisterModule(new ServiceModule(appSettings.Nested(x => x.DashSignService), Log));
@@ -69,7 +70,7 @@ namespace Lykke.Service.Dash.Sign
             }
             catch (Exception ex)
             {
-                Log?.WriteFatalErrorAsync(nameof(Startup), nameof(ConfigureServices), "", ex).GetAwaiter().GetResult();
+                Log?.Critical(ex);
                 throw;
             }
         }
@@ -100,11 +101,11 @@ namespace Lykke.Service.Dash.Sign
 
                 appLifetime.ApplicationStarted.Register(() => StartApplication().GetAwaiter().GetResult());
                 appLifetime.ApplicationStopping.Register(() => StopApplication().GetAwaiter().GetResult());
-                appLifetime.ApplicationStopped.Register(() => CleanUp().GetAwaiter().GetResult());
+                appLifetime.ApplicationStopped.Register(CleanUp);
             }
             catch (Exception ex)
             {
-                Log?.WriteFatalErrorAsync(nameof(Startup), nameof(Configure), "", ex).GetAwaiter().GetResult();
+                Log?.Critical(ex);
                 throw;
             }
         }
@@ -116,12 +117,10 @@ namespace Lykke.Service.Dash.Sign
                 // NOTE: Service not yet recieve and process requests here
 
                 await ApplicationContainer.Resolve<IStartupManager>().StartAsync();
-
-                await Log.WriteMonitorAsync("", $"Env: {Program.EnvInfo}", "Started");
             }
             catch (Exception ex)
             {
-                await Log.WriteFatalErrorAsync(nameof(Startup), nameof(StartApplication), "", ex);
+                Log.Critical(ex);
                 throw;
             }
         }
@@ -136,32 +135,24 @@ namespace Lykke.Service.Dash.Sign
             }
             catch (Exception ex)
             {
-                if (Log != null)
-                {
-                    await Log.WriteFatalErrorAsync(nameof(Startup), nameof(StopApplication), "", ex);
-                }
+                Log?.Critical(ex);
                 throw;
             }
         }
 
-        private async Task CleanUp()
+        private void CleanUp()
         {
             try
             {
                 // NOTE: Service can't recieve and process requests here, so you can destroy all resources
-
-                if (Log != null)
-                {
-                    await Log.WriteMonitorAsync("", $"Env: {Program.EnvInfo}", "Terminating");
-                }
-
+                
                 ApplicationContainer.Dispose();
             }
             catch (Exception ex)
             {
                 if (Log != null)
                 {
-                    await Log.WriteFatalErrorAsync(nameof(Startup), nameof(CleanUp), "", ex);
+                    Log.Critical(ex);
                     (Log as IDisposable)?.Dispose();
                 }
                 throw;
