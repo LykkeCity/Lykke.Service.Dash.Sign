@@ -1,5 +1,4 @@
-﻿using Common.Log;
-using Lykke.Service.Dash.Sign.Core.Services;
+﻿using Lykke.Service.Dash.Sign.Core.Services;
 using NBitcoin;
 using NBitcoin.Dash;
 using NBitcoin.Policy;
@@ -10,15 +9,12 @@ namespace Lykke.Service.Dash.Sign.Services
 {
     public class DashService : IDashService
     {
-        private readonly ILog _log;
         private readonly Network _network;
 
-        public DashService(ILog log,
-            string network)
+        public DashService(string network)
         {
             DashNetworks.Register();
 
-            _log = log;
             _network = Network.GetNetwork(network);
         }
 

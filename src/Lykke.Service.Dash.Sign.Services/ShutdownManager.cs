@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Common.Log;
 using Lykke.Service.Dash.Sign.Core.Services;
 
 namespace Lykke.Service.Dash.Sign.Services
@@ -11,13 +10,6 @@ namespace Lykke.Service.Dash.Sign.Services
     
     public class ShutdownManager : IShutdownManager
     {
-        private readonly ILog _log;
-
-        public ShutdownManager(ILog log)
-        {
-            _log = log;
-        }
-
         public async Task StopAsync()
         {
             // TODO: Implement your shutdown logic here. Good idea is to log every step
