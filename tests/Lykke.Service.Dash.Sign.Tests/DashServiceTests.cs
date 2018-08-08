@@ -17,7 +17,6 @@ namespace Lykke.Service.Dash.Sign.Tests
 {
     public class DashServiceTests
     {
-        private ILog _log;
         public Network network = DashNetworks.Testnet;
         public string from = "ygFX7C2QGD5YQG6EE9wGFddTxqMdUwELuB";
         public string fromPrivateKey = "cV9nTtEJwgLe7pmSALvzrtQbjtP7zg8phhzDqgEURvWTEmSAVGjH";
@@ -34,7 +33,7 @@ namespace Lykke.Service.Dash.Sign.Tests
 
         public DashServiceTests()
         {
-            _log = new LogToMemory();
+            new LogToMemory();
 
             fromAddress = new BitcoinPubKeyAddress(from);
             fromKey = Key.Parse(fromPrivateKey);
@@ -47,7 +46,7 @@ namespace Lykke.Service.Dash.Sign.Tests
                 .SendFees(txBuilder.EstimateFees(new FeeRate(Money.Satoshis(1024))))
                 .BuildTransaction(false);
             spentCoins = txBuilder.FindSpentCoins(tx);
-            service = new DashService(_log, "dash-testnet");
+            service = new DashService("dash-testnet");
 
             serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.Setup(provider => provider.GetService(typeof(IDashService)))
