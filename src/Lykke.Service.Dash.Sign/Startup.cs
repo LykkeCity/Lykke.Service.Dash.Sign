@@ -71,7 +71,7 @@ namespace Lykke.Service.Dash.Sign
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseLykkeMiddleware(ex => BlockchainErrorResponse.FromUnknownError(ex.ToString()));
+            app.UseLykkeMiddleware(ex => BlockchainErrorResponse.FromUnknownError(ex.Message));
 
             app.UseMvc();
 
