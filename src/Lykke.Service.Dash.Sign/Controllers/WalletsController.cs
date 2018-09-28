@@ -1,7 +1,6 @@
 ﻿using Lykke.Service.Dash.Sign.Core.Services;
 using Lykke.Service.Dash.Sign.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace Lykke.Service.Dash.Sign.Controllers
 {
