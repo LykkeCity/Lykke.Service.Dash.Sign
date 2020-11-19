@@ -26,9 +26,11 @@ namespace Lykke.Service.Dash.Sign.Controllers
                 return BadRequest(ModelState.ToErrorResponse());
             }
 
+            string hex;
+
             try
             {
-                var hex = _dashService.SignTransaction(request.Tx, request.Coins, request.Keys);
+                hex = _dashService.SignTransaction(request.Tx, request.Coins, request.Keys);
             }
             catch (Exception e)
             {
