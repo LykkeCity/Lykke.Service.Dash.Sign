@@ -5,6 +5,7 @@ using Autofac.Extensions.DependencyInjection;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Logs;
+using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.Dash.Sign.Core.Services;
 using Lykke.Service.Dash.Sign.Core.Settings;
 using Lykke.Service.Dash.Sign.Modules;
@@ -70,7 +71,7 @@ namespace Lykke.Service.Dash.Sign
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseLykkeMiddleware(ex => new { Message = "Technical problem" });
+            app.UseLykkeMiddleware(ex => BlockchainErrorResponse.FromUnknownError(ex.Message));
 
             app.UseMvc();
 

@@ -1,4 +1,5 @@
-﻿using Lykke.Common.Api.Contract.Responses;
+﻿using System.Collections.Generic;
+using Lykke.Common.Api.Contract.Responses;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Linq;
 
@@ -9,6 +10,8 @@ namespace Lykke.Service.Dash.Sign.Utils
         public static ErrorResponse ToErrorResponse(this ModelStateDictionary modelState)
         {
             var response = new ErrorResponse();
+
+            response.ModelErrors = new Dictionary<string, List<string>>();
 
             foreach (var state in modelState)
             {

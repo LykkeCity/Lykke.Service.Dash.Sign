@@ -1,4 +1,5 @@
-﻿using Lykke.Service.Dash.Sign.Core.Services;
+﻿using System;
+using Lykke.Service.Dash.Sign.Core.Services;
 using Lykke.Service.Dash.Sign.Models;
 using Lykke.Service.Dash.Sign.Utils;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +26,18 @@ namespace Lykke.Service.Dash.Sign.Controllers
                 return BadRequest(ModelState.ToErrorResponse());
             }
 
-            var hex = _dashService.SignTransaction(request.Tx, request.Coins, request.Keys);
+            string hex;
+
+            try
+            {
+                hex = _dashService.SignTransaction(request.Tx, request.Coins, request.Keys);
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError(nameof(request.Tx), "Error during transaction signing.");
+
+                return BadRequest(ModelState.ToErrorResponse());
+            }
 
             return Ok(new SignResponse()
             {
